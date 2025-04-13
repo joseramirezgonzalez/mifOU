@@ -6,6 +6,16 @@ library(MASS)
 library(pracma)
 library(shinyWidgets)
 
+
+# Funciones de envoltura
+wrap_longitude <- function(lon) {
+  ((lon + 180) %% 360) - 180
+}
+
+wrap_latitude <- function(lat) {
+  ((lat + 90) %% 180) - 90
+}
+
 # Define UI
 ui <- fluidPage(
   tags$head(
@@ -83,7 +93,7 @@ server <- function(input, output, session) {
     )
 
     mu_1 <- telemetry[1:(n+1)]
-    mu_2 <- telemetry[(n+2):(2*n+2)]
+    mu_2 <- telemetry[(n+2):(2*n+2)]  
     mu_3 <- telemetry[(2*n+3):(3*n+3)]
 
     rhos <- coeff(input$z12, input$z13, input$z23, input$h1, input$h2, input$h3)
@@ -95,11 +105,11 @@ server <- function(input, output, session) {
     req(simulate_data())
     data <- simulate_data()
 
-    df <- data.frame(
-      lon = data$mu_1,
-      lat = data$mu_2,
-      alt = data$mu_3
-    )
+ df <- data.frame(
+  lon = wrap_longitude(data$mu_1),
+  lat = wrap_latitude(data$mu_2),
+  alt = data$mu_3
+)
 
     range_alt <- range(df$alt, na.rm = TRUE)
     if (diff(range_alt) == 0) {
